@@ -3,6 +3,7 @@ import time
 from queue import PriorityQueue
 import threading
 import random
+from ..logger import Logger
 
 
 class TimeWheel(object):
@@ -25,6 +26,7 @@ class TimeWheel(object):
         self.__current_pos = val
 
 
+@Logger(name='SmartTask.timer.TimeWheelManager')
 class TimeWheelMananger(object):
 
     def __init__(self, min_interval, slots=None):
@@ -78,7 +80,8 @@ class TimeWheelMananger(object):
 
         if not self.aux_ticker.empty():
             delay = self.aux_ticker.get()
-            print(delay, self.current_tick_times)
+            self.logger.info('delay {}, current tick times {}'.format(
+                delay, self.current_tick_times))
             wait_tick_times = delay - self.current_tick_times
             time.sleep(wait_tick_times * self.min_interval)
             self.current_tick_times = delay

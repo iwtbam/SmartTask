@@ -4,8 +4,10 @@ from .task import TaskDetail
 import subprocess
 import sys
 from .task import *
+from ..logger import Logger
 
 
+@Logger(__name__)
 class ShellTask(Task):
 
     def __init__(self, task_name, shell_command, log_file=None,  conditions=None, max_retry=1, task_type=TaskType.SUCCESS_RET):
@@ -21,6 +23,8 @@ class ShellTask(Task):
 
         arguments = ' '.join(map(lambda x: str(x), args))
         run_command = '{} {}'.format(self.command, arguments)
+
+        self.logger.info(run_command)
 
         if self.log_file is None:
             out_log = sys.stdout
