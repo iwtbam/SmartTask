@@ -14,8 +14,8 @@ class TaskState(Enum):
 
 
 class TaskType(Enum):
-    ONCE = 0
-    REPEAT = 1
+    SUCCESS_RET = 0
+    FIXED_RATE = 1
 
 
 class TaskRuner(metaclass=ABCMeta):
@@ -40,13 +40,15 @@ class TaskRunCondition(metaclass=ABCMeta):
         pass
 
 
-class TaskBasicDetail(object):
+class TaskDetail(object):
 
-    def __init__(self, task_name, max_retry, conditions):
+    def __init__(self, task_name, max_retry=1, task_type=TaskType.SUCCESS_RET, conditions=None):
         self.task_name = task_name
         self.max_retry = max_retry
         self.task_state = TaskState.WAIT
+        self.task_type = task_type
         self.conditions = conditions
+        self.run_times = 0
 
     @property
     def max_retry(self):
@@ -78,5 +80,5 @@ class TaskBasicDetail(object):
         self.__conditions = val
 
 
-class Task(TaskRuner, TaskBasicDetail):
+class Task(TaskRuner, TaskDetail):
     pass

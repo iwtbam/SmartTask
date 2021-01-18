@@ -2,7 +2,6 @@
 # -*- coding:utf8 -*-
 
 from .task import Task
-from .shell_task import ShellTask
 
 
 class TaskEntry(object):

@@ -1,14 +1,16 @@
 from .task import Task
 from .task import TaskState
-from .task import TaskBasicDetail
+from .task import TaskDetail
 import subprocess
 import sys
+from .task import *
 
 
 class ShellTask(Task):
 
-    def __init__(self, task_name, shell_command, log_file=None,  conditions=None, max_retry=1):
-        TaskBasicDetail.__init__(self, task_name, max_retry, conditions)
+    def __init__(self, task_name, shell_command, log_file=None,  conditions=None, max_retry=1, task_type=TaskType.SUCCESS_RET):
+        TaskDetail.__init__(
+            self, task_name, max_retry, task_type, conditions)
         self.command = shell_command
         self.log_file = log_file
 
@@ -17,7 +19,7 @@ class ShellTask(Task):
         if self.max_retry == 0:
             return TaskState.FAIL
 
-        arguments = ' '.join(map(lambda x: str, args))
+        arguments = ' '.join(map(lambda x: str(x), args))
         run_command = '{} {}'.format(self.command, arguments)
 
         if self.log_file is None:

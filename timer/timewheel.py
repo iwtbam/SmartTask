@@ -5,44 +5,6 @@ import threading
 import random
 
 
-class TaskAddress(object):
-
-    def __init__(self, time_wheel_no, slot_no, task_id):
-        self.time_wheel_no = time_wheel_no
-        self.slot_no = slot_no
-        self.task_id = task_id
-
-    @property
-    def time_wheel_no(self):
-        return self.__time_wheel_no
-
-    @time_wheel_no.setter
-    def time_wheel_no(self, val):
-        if not isinstance(val, int):
-            raise Exception("time_wheel_no must be int")
-        self.__time_wheel_no = val
-
-    @property
-    def slot_no(self):
-        return self.__slot_no
-
-    @slot_no.setter
-    def slot_no(self, val):
-        if not isinstance(val, int):
-            raise Exception("slot no must be int")
-        self.__slot_no = val
-
-    @property
-    def task_id(self):
-        return self.__task_id
-
-    @task_id.setter
-    def task_id(self, val):
-        if not isinstance(self, val):
-            raise Exception("task id must be int")
-        self.__task_id = val
-
-
 class TimeWheel(object):
 
     def __init__(self, slot_num, interval, next=None):
