@@ -5,7 +5,7 @@ import subprocess
 from enum import Enum
 from typing import List
 from collections import Iterable
-
+from .condition import TaskRunCondition
 
 class TaskState(Enum):
     SUCCESS = 0
@@ -29,15 +29,6 @@ class TaskRuner(metaclass=ABCMeta):
         pass
 
 
-class TaskRunCondition(metaclass=ABCMeta):
-
-    @abstractmethod
-    def check(self, *args, **kwargs):
-        pass
-
-    @abstractmethod
-    def hint(self):
-        pass
 
 
 class TaskDetail(object):

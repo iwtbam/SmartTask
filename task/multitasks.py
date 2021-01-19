@@ -4,10 +4,10 @@ from .task import TaskDetail
 import subprocess
 import sys
 from .task import *
-from ..logger import Logger
+from ..logger import *
 
 
-@Logger(__name__)
+@default_logger
 class ShellTask(Task):
 
     def __init__(self, task_name, shell_command, log_file=None,  conditions=None, max_retry=1, task_type=TaskType.SUCCESS_RET):
@@ -15,6 +15,7 @@ class ShellTask(Task):
             self, task_name, max_retry, task_type, conditions)
         self.command = shell_command
         self.log_file = log_file
+        self.rets = []
 
     def run(self, *args):
 
@@ -22,7 +23,8 @@ class ShellTask(Task):
             return TaskState.FAIL
 
         arguments = ' '.join(map(lambda x: str(x), args))
-        run_command = '{} {}'.format(self.command, arguments)
+        run_command = '{} {} {}'.format(
+            self.command, ' '.join(self.rets), arguments)
 
         self.logger.info(run_command)
 
@@ -54,6 +56,7 @@ class ShellTask(Task):
             return True, "no condition"
 
         for condition in self.conditions:
-            if condition(*args, **kwargs) == False:
+            if condition.check(*args, **kwargs) == False:
                 return False, condition.hint()
+            self.rets.append(condition.args())
         return True, None

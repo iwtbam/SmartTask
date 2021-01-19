@@ -1,9 +1,9 @@
 from croniter import croniter
 from datetime import datetime
-from ..logger import Logger
+from ..logger import *
 
 
-@Logger(name='CronTimer')
+@default_logger
 class CronTimer(object):
 
     def __init__(self, times, cron_express, base_time=None):

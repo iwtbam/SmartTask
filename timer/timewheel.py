@@ -3,7 +3,7 @@ import time
 from queue import PriorityQueue
 import threading
 import random
-from ..logger import Logger
+from ..logger import *
 
 
 class TimeWheel(object):
@@ -26,7 +26,7 @@ class TimeWheel(object):
         self.__current_pos = val
 
 
-@Logger(name='SmartTask.timer.TimeWheelManager')
+@default_logger
 class TimeWheelMananger(object):
 
     def __init__(self, min_interval, slots=None):

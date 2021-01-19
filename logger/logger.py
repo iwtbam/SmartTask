@@ -3,12 +3,18 @@ import logging
 
 
 class Logger(object):
-    def __init__(self, name, level=logging.DEBUG, format=None):
+    def __init__(self, name=None, level=logging.DEBUG, format=None):
         if format is None:
-            format = '%(asctime)s - %(name)s - %(lineno)d - %(levelname)s : %(message)s'
+            format = '%(asctime)s - %(filename)s - %(name)s - %(lineno)d - %(levelname)s : %(message)s'
         self.name = name
         logging.basicConfig(level=level, format=format)
 
     def __call__(self, cls):
-        setattr(cls, 'logger', logging.getLogger(self.name))
+        name = self.name
+        if name is None:
+            name = cls.__name__
+        setattr(cls, 'logger', logging.getLogger(name))
         return cls
+
+
+default_logger = Logger()
