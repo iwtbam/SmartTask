@@ -4,7 +4,7 @@ from .task import TaskDetail
 import subprocess
 import sys
 from .task import *
-from ..logger import *
+from ..utils import *
 
 
 @default_logger

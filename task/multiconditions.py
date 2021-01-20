@@ -36,7 +36,7 @@ class NVIDIAGPUMemoryLimit(TaskRunCondition):
             return list(map(search_func, lines))
 
     def hint(self):
-        pass
+        return ""
 
     def args(self):
         return self.ret

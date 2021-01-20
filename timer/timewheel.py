@@ -3,7 +3,7 @@ import time
 from queue import PriorityQueue
 import threading
 import random
-from ..logger import *
+from ..utils import *
 
 
 class TimeWheel(object):

@@ -6,6 +6,8 @@ from enum import Enum
 from typing import List
 from collections import Iterable
 from .condition import TaskRunCondition
+from ..utils import *
+
 
 class TaskState(Enum):
     SUCCESS = 0
@@ -29,8 +31,16 @@ class TaskRuner(metaclass=ABCMeta):
         pass
 
 
+class TaskConstraint(TypeConstraint):
+    task_name = str
+    max_retry = int
+    task_type = TaskType
+    task_state = TaskState
+    run_times = int
+    conditions = UnionType(None, NestedType(Iterable, True, TaskRunCondition))
 
 
+@check(TaskConstraint)
 class TaskDetail(object):
 
     def __init__(self, task_name, max_retry=1, task_type=TaskType.SUCCESS_RET, conditions=None):
@@ -41,34 +51,34 @@ class TaskDetail(object):
         self.conditions = conditions
         self.run_times = 0
 
-    @property
-    def max_retry(self):
-        return self.__max_retry
+    # @property
+    # def max_retry(self):
+    #     return self.__max_retry
 
-    @max_retry.setter
-    def max_retry(self, val):
-        if not isinstance(val, int):
-            raise Exception("max retry must be int")
-        self.__max_retry = val
+    # @max_retry.setter
+    # def max_retry(self, val):
+    #     if not isinstance(val, int):
+    #         raise Exception("max retry must be int")
+    #     self.__max_retry = val
 
-    @property
-    def conditions(self):
-        return self.__conditions
+    # @property
+    # def conditions(self):
+    #     return self.__conditions
 
-    @conditions.setter
-    def conditions(self, val):
+    # @conditions.setter
+    # def conditions(self, val):
 
-        if val is None:
-            self.__conditions = val
-            return
+    #     if val is None:
+    #         self.__conditions = val
+    #         return
 
-        if not isinstance(val, Iterable):
-            raise Exception("conditions must be Iterable or None")
+    #     if not isinstance(val, Iterable):
+    #         raise Exception("conditions must be Iterable or None")
 
-        for condition in val:
-            if not isinstance(condition, TaskRunCondition):
-                raise Exception("single condition must be TaskRunCondition")
-        self.__conditions = val
+    #     for condition in val:
+    #         if not isinstance(condition, TaskRunCondition):
+    #             raise Exception("single condition must be TaskRunCondition")
+    #     self.__conditions = val
 
 
 class Task(TaskRuner, TaskDetail):

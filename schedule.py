@@ -12,7 +12,7 @@ class Schedule(TimeWheelMananger):
         self.is_tick = False
         self.task_queue = Queue()
         self.tick_thread = threading.Thread(target=self.__tick)
-        self.corns = dict()
+        self.crons = dict()
         self.states = dict()
         self.callbacks = dict()
 
@@ -21,26 +21,27 @@ class Schedule(TimeWheelMananger):
         self.tick_thread.start()
         self.__execute()
 
-    def schedule(self, cron_express, run_times, task, callback = None):
+    def schedule(self, cron_express, run_times, task, callback=None):
         cron_timers = CronTimer(run_times, cron_express)
-        self.corns[task] = cron_timers
+        self.crons[task] = cron_timers
+        if callback is not None:
+            self.callbacks[task] = callback
         self.__produce_task(task)
 
     def __produce_task(self, task):
 
         if task not in self.crons:
-            return Non
-        delay_time = self.corns[task].get_next()
+            return None
+        delay_time = self.crons[task].get_next()
         if delay_time <= 0:
             self.__done(task)
             return None
         delay_tick = int(delay_time // self.min_interval)
         return self.add_task(delay_tick, task)
 
-    
     def __done(self, task):
         if task in self.crons:
-            del self.cron[task]
+            del self.crons[task]
 
     def stop(self):
         self.is_tick = False
@@ -50,6 +51,12 @@ class Schedule(TimeWheelMananger):
             tasks = self.tick()
             for task in tasks:
                 self.task_queue.put(task)
+
+    def __notify_callback(self, task, event):
+        if task not in self.callbacks:
+            pass
+        callback = self.callbacks[task]
+        callback.dispatch_event(event)
 
     def __execute(self):
         while self.is_tick:
@@ -61,7 +68,6 @@ class Schedule(TimeWheelMananger):
             except Exception as e:
                 print(e)
             finally:
-                if task.task_type == TaskType.SUCCESS_RET and status_code = TaskState.SUCCESS:
+                if task.task_type == TaskType.SUCCESS_RET and status_code == TaskState.SUCCESS:
                     self.__done(task)
-                    continue
                 self.__produce_task(task)

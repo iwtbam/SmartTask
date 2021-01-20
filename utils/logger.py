@@ -9,6 +9,7 @@ class Logger(object):
         self.name = name
         logging.basicConfig(level=level, format=format)
 
+    # @wraps
     def __call__(self, cls):
         name = self.name
         if name is None:

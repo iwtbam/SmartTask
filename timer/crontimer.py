@@ -1,6 +1,6 @@
 from croniter import croniter
 from datetime import datetime
-from ..logger import *
+from ..utils import *
 
 
 @default_logger
