@@ -2,8 +2,19 @@
 # -*- coding:utf8 -*-
 
 from .task import Task
+from ..utils import check
+from ..utils import TypeConstraint, SelfType, UnionType
 
 
+class TaskEntryConstraint(TypeConstraint):
+    task = UnionType(Task, None)
+    task_id = int
+    next = UnionType(SelfType, None)
+    pre = UnionType(SelfType, None)
+    time = int
+
+
+@check(TaskEntryConstraint)
 class TaskEntry(object):
 
     def __init__(self, task_id=-1, task=None, time=0,  pre=None, next=None):
@@ -12,46 +23,6 @@ class TaskEntry(object):
         self.next = next
         self.pre = pre
         self.time = time
-
-    @property
-    def task(self):
-        return self.__task
-
-    @task.setter
-    def task(self, val):
-        if val is not None and not isinstance(val, Task):
-            raise Exception("task : {} not be Task or None".format(val))
-        self.__task = val
-
-    @property
-    def pre(self):
-        return self.__pre
-
-    @pre.setter
-    def pre(self, val):
-        if val is not None and not isinstance(val, TaskEntry):
-            raise Exception("type of pre must be TaskEntry")
-        self.__pre = val
-
-    @property
-    def next(self):
-        return self.__next
-
-    @next.setter
-    def next(self, val):
-        if val is not None and not isinstance(val, TaskEntry):
-            raise Exception("type of next must be TaskEntry")
-        self.__next = val
-
-    @property
-    def tick(self):
-        return self.__tick
-
-    @tick.setter
-    def tick(self, val):
-        if not (isinstance(val, int) or isinstance(val, int)):
-            raise Exception("tick must be a number")
-        self.__tick = val
 
 
 class TaskList(object):

@@ -1,11 +1,13 @@
 from abc import ABCMeta, abstractmethod
 from enum import Enum
+import threading
 
 
 class TaskEvent(Enum):
-    START_RUN = 0
-    END_RUN = 1
-    DONE = 2
+    RUN_START = 0
+    RUN_END = 1
+    RUN_EXCEPTION = 2
+    DONE = 3
 
 
 class CallBack(metaclass=ABCMeta):
@@ -14,24 +16,40 @@ class CallBack(metaclass=ABCMeta):
         self.sync = sync
 
     @abstractmethod
-    def done(self):
+    def done(self, *args, **kwargs):
         pass
 
     @abstractmethod
-    def start_run(self):
+    def start_run(self, *args, **kwargs):
         pass
 
     @abstractmethod
-    def end_run(self):
+    def end_run(self, *args, **kwargs):
         pass
 
-    def dispatch_event(self, event):
+    @abstractmethod
+    def exception(self, *args, **kwargs):
+        pass
 
-        if event == TaskEvent.START_RUN:
-            self.start_run()
+    def dispatch_event(self, event, *args, **kwargs):
 
-        if event == TaskEvent.END_RUN:
-            self.end_run()
+        target = None
+
+        if event == TaskEvent.RUN_START:
+            target = self.start_run
+
+        if event == TaskEvent.RUN_END:
+            target = self.end_run
+
+        if event == TaskEvent.RUN_EXCEPTION:
+            target = self.exception
 
         if event == TaskEvent.DONE:
-            self.done()
+            target = self.done
+
+        if self.sync:
+            sync_thread = threading.Thread(
+                target=target, args=args, kwargs=kwargs)
+            sync_thread.start()
+        else:
+            target(*args, **kwargs)

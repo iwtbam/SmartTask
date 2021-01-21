@@ -1,10 +1,22 @@
 from .timer import TimeWheelManager
 from .timer import CronTimer
-from .task import TaskType, TaskState
+from .task import TaskType, TaskState, TaskEvent
 import threading
 from queue import Queue
+from .utils import default_logger
+from .utils import check, TypeConstraint, UnionType, NestedType
 
 
+class ScheduleConstraint(TypeConstraint):
+    is_tick = bool
+    task_queue = Queue
+    crons = dict
+    states = dict
+    callbacks = dict
+
+
+@check(ScheduleConstraint)
+@default_logger
 class Schedule(TimeWheelManager):
 
     def __init__(self, min_interval, slots=(60, 60, 24)):
@@ -39,9 +51,10 @@ class Schedule(TimeWheelManager):
         delay_tick = int(delay_time // self.min_interval)
         return self.add_task(delay_tick, task)
 
-    def __done(self, task):
+    def __done(self, task, *args, **kwargs):
         if task in self.crons:
             del self.crons[task]
+        self.__notify_callback(task, TaskEvent.DONE, *args, **kwargs)
 
     def stop(self):
         self.is_tick = False
@@ -52,21 +65,27 @@ class Schedule(TimeWheelManager):
             for task in tasks:
                 self.task_queue.put(task)
 
-    def __notify_callback(self, task, event):
+    def __notify_callback(self, task, event, *args, **kwargs):
         if task not in self.callbacks:
-            pass
+            return
         callback = self.callbacks[task]
-        callback.dispatch_event(event)
+        callback.dispatch_event(event, task, *args, **kwargs)
 
     def __execute(self):
         while self.is_tick:
-            task = self.task_queue.get()
-            status_code = TaskState.WAIT
             try:
-                status_code = task.run()
+                task = self.task_queue.get()
+                status_code = TaskState.WAIT
+                self.__notify_callback(task, TaskEvent.RUN_START)
+                try:
+                    status_code = task.run()
+                except Exception as e:
+                    self.__notify_callback(task, TaskEvent.RUN_EXCEPTION, e)
+                finally:
+                    self.__notify_callback(task, TaskEvent.RUN_END)
+                    if task.task_type == TaskType.SUCCESS_RET and status_code == TaskState.SUCCESS:
+                        self.__done(task)
             except Exception as e:
-                print(e)
+                self.logger.error("execute exception {}".format(e))
             finally:
-                if task.task_type == TaskType.SUCCESS_RET and status_code == TaskState.SUCCESS:
-                    self.__done(task)
                 self.__produce_task(task)

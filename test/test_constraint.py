@@ -1,3 +1,2 @@
 import unittest
-from ..utils import *
-from ..task import *
+from ..utils import check, UnionType, SelfType, NestedType

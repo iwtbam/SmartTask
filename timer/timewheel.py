@@ -4,8 +4,20 @@ from queue import PriorityQueue
 import threading
 import random
 from ..utils import default_logger
+from ..utils import check
+from ..utils import TypeConstraint, UnionType, NestedType, SelfType
+from collections import Iterable
 
 
+class TimeWheelConstraint(TypeConstraint):
+    current_pos = int
+    slot_num = int
+    task_buckets = NestedType(list, True, TaskList)
+    next_time_wheel = UnionType(None, SelfType)
+    interval = int
+
+
+@check(TimeWheelConstraint)
 class TimeWheel(object):
 
     def __init__(self, slot_num, interval, next=None):
@@ -15,17 +27,18 @@ class TimeWheel(object):
         self.next_time_wheel = next
         self.interval = interval
 
-    @property
-    def current_pos(self):
-        return self.__current_pos
 
-    @current_pos.setter
-    def current_pos(self, val):
-        if not isinstance(val, int):
-            raise Exception("current pos must be int")
-        self.__current_pos = val
+class TimeWheelManagerConstraint(TypeConstraint):
+    slots = NestedType(Iterable, True, int)
+    level = int
+    min_interval = int
+    address_lookup = dict
+    aux_ticker = PriorityQueue
+    current_tick_times = int
+    task_id = int
 
 
+@check(TimeWheelManagerConstraint)
 @default_logger
 class TimeWheelManager(object):
 
@@ -81,6 +94,8 @@ class TimeWheelManager(object):
         if not self.aux_ticker.empty():
             delay = self.aux_ticker.get()
             self.logger.info('delay {}, current tick times {}'.format(
+                delay, self.current_tick_times))
+            print('delay {}, current tick times {}'.format(
                 delay, self.current_tick_times))
             wait_tick_times = delay - self.current_tick_times
             time.sleep(wait_tick_times * self.min_interval)
