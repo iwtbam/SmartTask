@@ -21,6 +21,8 @@ class Schedule(TimeWheelMananger):
         self.tick_thread.start()
         self.__execute()
 
+
+<< << << < HEAD
     def schedule(self, cron_express, run_times, task, callback=None):
         cron_timers = CronTimer(run_times, cron_express)
         self.crons[task] = cron_timers
@@ -35,14 +37,27 @@ class Schedule(TimeWheelMananger):
         delay_time = self.crons[task].get_next()
         if delay_time <= 0:
             self.__done(task)
+== == == =
+    def schedule(self, cron_express, run_times, task):
+        cron_timers = CronTimer(run_times, cron_express)
+        self.corns[task] = cron_timers
+        self.__produce_task(task)
+
+    def __produce_task(self, task):
+        delay_time = self.corns[task].get_next()
+        if delay_time <= 0:
+>>>>>> > 0e22d80... 引入corn表达式定时触发任务
             return None
         delay_tick = int(delay_time // self.min_interval)
         return self.add_task(delay_tick, task)
 
+<<<<<<< HEAD
     def __done(self, task):
         if task in self.crons:
             del self.crons[task]
 
+=======
+>>>>>>> 0e22d80... 引入corn表达式定时触发任务
     def stop(self):
         self.is_tick = False
 
@@ -61,13 +76,19 @@ class Schedule(TimeWheelMananger):
     def __execute(self):
         while self.is_tick:
             task = self.task_queue.get()
+<<<<<<< HEAD
             task_type = task.task_type
             status_code = TaskState.WAIT
+=======
+>>>>>>> 0e22d80... 引入corn表达式定时触发任务
             try:
                 status_code = task.run()
             except Exception as e:
                 print(e)
             finally:
+<<<<<<< HEAD
                 if task.task_type == TaskType.SUCCESS_RET and status_code == TaskState.SUCCESS:
                     self.__done(task)
+=======
+>>>>>>> 0e22d80... 引入corn表达式定时触发任务
                 self.__produce_task(task)
