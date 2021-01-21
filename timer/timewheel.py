@@ -1,9 +1,9 @@
-from .. import task
+from ..task import TaskList
 import time
 from queue import PriorityQueue
 import threading
 import random
-from ..utils import *
+from ..utils import default_logger
 
 
 class TimeWheel(object):
@@ -11,7 +11,7 @@ class TimeWheel(object):
     def __init__(self, slot_num, interval, next=None):
         self.current_pos = 0
         self.slot_num = slot_num
-        self.task_buckets = [task.TaskList(i) for i in range(self.slot_num)]
+        self.task_buckets = [TaskList(i) for i in range(self.slot_num)]
         self.next_time_wheel = next
         self.interval = interval
 
@@ -27,7 +27,7 @@ class TimeWheel(object):
 
 
 @default_logger
-class TimeWheelMananger(object):
+class TimeWheelManager(object):
 
     def __init__(self, min_interval, slots=None):
         self.slots = slots

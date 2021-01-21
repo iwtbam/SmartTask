@@ -6,7 +6,7 @@ from enum import Enum
 from typing import List
 from collections import Iterable
 from .condition import TaskRunCondition
-from ..utils import *
+from ..utils import check, TypeConstraint, UnionType, NestedType
 
 
 class TaskState(Enum):
@@ -50,35 +50,6 @@ class TaskDetail(object):
         self.task_type = task_type
         self.conditions = conditions
         self.run_times = 0
-
-    # @property
-    # def max_retry(self):
-    #     return self.__max_retry
-
-    # @max_retry.setter
-    # def max_retry(self, val):
-    #     if not isinstance(val, int):
-    #         raise Exception("max retry must be int")
-    #     self.__max_retry = val
-
-    # @property
-    # def conditions(self):
-    #     return self.__conditions
-
-    # @conditions.setter
-    # def conditions(self, val):
-
-    #     if val is None:
-    #         self.__conditions = val
-    #         return
-
-    #     if not isinstance(val, Iterable):
-    #         raise Exception("conditions must be Iterable or None")
-
-    #     for condition in val:
-    #         if not isinstance(condition, TaskRunCondition):
-    #             raise Exception("single condition must be TaskRunCondition")
-    #     self.__conditions = val
 
 
 class Task(TaskRuner, TaskDetail):

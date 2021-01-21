@@ -1,9 +1,9 @@
 from croniter import croniter
 from datetime import datetime
-from ..utils import *
+# from ..utils import default_logger
 
 
-@default_logger
+# @default_logger
 class CronTimer(object):
 
     def __init__(self, times, cron_express, base_time=None):
@@ -25,8 +25,8 @@ class CronTimer(object):
             return -1
         cur_time = self.cron_iter.get_next(datetime)
         diff = cur_time - self.__pre_time
-        self.logger.info('pre time {}, next time {}'.format(
-            self.__pre_time, cur_time))
+        # self.logger.info('pre time {}, next time {}'.format(
+        # self.__pre_time, cur_time))
         self.__pre_time = cur_time
         self.times -= 1
         return diff.total_seconds()

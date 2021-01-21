@@ -1,5 +1,5 @@
 from .condition import TaskRunCondition
-from ..logger import default_logger
+from ..utils import default_logger
 import os
 import re
 
@@ -28,7 +28,7 @@ class NVIDIAGPUMemoryLimit(TaskRunCondition):
             lines = rfile.readlines()[1:]
 
             def search_func(line):
-                res = re.findall("(\d+).+?(\d+).+?(\d+)", line)
+                res = re.findall(r'(\d+).+?(\d+).+?(\d+)', line)
                 if len(res) == 0 or len(res[0]) < 3:
                     return None
                 return list(map(lambda x: int(x), res[0]))
