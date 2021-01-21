@@ -7,6 +7,10 @@ class TypeConstraint(object):
     pass
 
 
+class SelfType(object):
+    pass
+
+
 class UnionType(object):
 
     def __init__(self, *args):
@@ -39,10 +43,13 @@ def __all_vars(cls):
     return names
 
 
-def __validate(obj, cls):
+def __validate(selftype, obj, cls):
 
     if obj == cls:
         return True
+
+    if cls == SelfType:
+        return isinstance(obj, selftype)
 
     if isinstance(cls, type) and isinstance(obj, cls):
         return True
@@ -50,7 +57,7 @@ def __validate(obj, cls):
     if isinstance(cls, UnionType):
         ret = False
         for type_args in cls.typelist:
-            ret = ret or __validate(obj, type_args)
+            ret = ret or __validate(selftype, obj, type_args)
         return ret
 
     if isinstance(cls, NestedType):
@@ -59,11 +66,11 @@ def __validate(obj, cls):
         ret = True
         if cls.is_same == True:
             for e in obj:
-                ret = ret and __validate(e, cls.element_type)
+                ret = ret and __validate(selftype, e, cls.element_type)
         else:
             min_validate_len = min(len(obj), len(cls.element_type))
             for i in range(min_validate_len):
-                ret = ret and __validate(obj[i], cls.element_type[i])
+                ret = ret and __validate(selftype, obj[i], cls.element_type[i])
         return True
     return False
 
@@ -73,7 +80,7 @@ def check(constraint):
     def setattr(self, name, val):
         var_dict = __all_vars(constraint)
         if name in var_dict:
-            if not __validate(val, var_dict[name]):
+            if not __validate(type(self), val, var_dict[name]):
                 raise Exception('{} must be {}'.format(name, var_dict[name]))
         self.__dict__[name] = val
 
