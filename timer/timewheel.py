@@ -3,10 +3,7 @@ import time
 from queue import PriorityQueue
 import threading
 import random
-<<<<<<< HEAD:timer/timewheel.py
 from ..utils import *
-=======
->>>>>>> 0e22d80... 引入corn表达式定时触发任务:timer/time_wheel.py
 
 
 class TimeWheel(object):
