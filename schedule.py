@@ -27,6 +27,7 @@ class Schedule(TimeWheelManager):
         self.crons = dict()
         self.states = dict()
         self.callbacks = dict()
+        self.__lock = threading.Lock()
 
     def start(self):
         self.is_tick = True

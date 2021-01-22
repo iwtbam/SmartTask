@@ -7,6 +7,7 @@ from .task import Task, TaskType, TaskState
 from ..utils import default_logger
 from .condition import NoFit
 
+
 @default_logger
 class ShellTask(Task):
 
@@ -49,13 +50,13 @@ class ShellTask(Task):
         return TaskState.FAIL
 
     def check(self, *args, **kwargs):
-        
+
         rets = []
         if self.conditions is None or len(self.conditions) == 0:
             return ['']
 
         for condition in self.conditions:
-            res =  condition.check(*args, **kwargs)
+            res = condition.check(*args, **kwargs)
             if isinstance(res, NoFit):
                 return res
             rets.append(res)

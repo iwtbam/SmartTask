@@ -71,10 +71,11 @@ class TimeWheelManager(object):
         time_wheel_no, offset = self.__index(delay)
         slot_no = (self.time_wheels[time_wheel_no].current_pos +
                    offset) % self.time_wheels[time_wheel_no].slot_num
-    
-        self.logger.info('time no {}, current pos {}, task pos {}, task name {}'.format(time_wheel_no, self.time_wheels[time_wheel_no].current_pos, slot_no, task.task_name))
+
+        self.logger.info('time no {}, current pos {}, task pos {}, task name {}'.format(
+            time_wheel_no, self.time_wheels[time_wheel_no].current_pos, slot_no, task.task_name))
         #self.logger.info("{} {}".format(delay, self.current_tick_times))
-        self.aux_ticker.put(delay + self.current_tick_times)
+        #self.aux_ticker.put(delay + self.current_tick_times)
         task_list = self.__get_task_list(time_wheel_no, slot_no)
         task_list.add_task(delay + self.current_tick_times, task_id, task)
         self.address_lookup[task_id] = (time_wheel_no, slot_no)
