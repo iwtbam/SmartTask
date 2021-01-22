@@ -5,9 +5,11 @@ from ..utils import default_logger
 
 @default_logger
 class CronTimer(object):
-
+    MAX_RETRY = int(1e11)
     def __init__(self, times, cron_express, base_time=None):
         self.times = times
+        if self.times < 0:
+            self.times = CronTimer.MAX_RETRY
         if not croniter.is_valid(cron_express):
             raise Exception("cron expression is not valid")
         self.__cron_express = cron_express

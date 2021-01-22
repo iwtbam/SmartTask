@@ -5,9 +5,10 @@ import threading
 
 class TaskEvent(Enum):
     RUN_START = 0
-    RUN_END = 1
-    RUN_EXCEPTION = 2
-    DONE = 3
+    RUN_NO_FIT = 1
+    RUN_END = 2
+    RUN_EXCEPTION = 3
+    DONE = 4
 
 
 class CallBack(metaclass=ABCMeta):
@@ -20,11 +21,15 @@ class CallBack(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def start_run(self, *args, **kwargs):
+    def start(self, *args, **kwargs):
         pass
 
     @abstractmethod
-    def end_run(self, *args, **kwargs):
+    def end(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
+    def no_fit(self, *args, **kwargs):
         pass
 
     @abstractmethod
@@ -36,16 +41,19 @@ class CallBack(metaclass=ABCMeta):
         target = None
 
         if event == TaskEvent.RUN_START:
-            target = self.start_run
+            target = self.start
 
         if event == TaskEvent.RUN_END:
-            target = self.end_run
+            target = self.end
 
         if event == TaskEvent.RUN_EXCEPTION:
             target = self.exception
 
         if event == TaskEvent.DONE:
             target = self.done
+
+        if event == TaskEvent.RUN_NO_FIT:
+            target = self.no_fit
 
         if self.sync:
             sync_thread = threading.Thread(

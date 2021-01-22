@@ -5,7 +5,7 @@ import subprocess
 import sys
 from .task import Task, TaskType, TaskState
 from ..utils import default_logger
-
+from .condition import NoFit
 
 @default_logger
 class ShellTask(Task):
@@ -15,7 +15,6 @@ class ShellTask(Task):
             self, task_name, max_retry, task_type, conditions)
         self.command = shell_command
         self.log_file = log_file
-        self.rets = []
 
     def run(self, *args):
 
@@ -23,8 +22,7 @@ class ShellTask(Task):
             return TaskState.FAIL
 
         arguments = ' '.join(map(lambda x: str(x), args))
-        run_command = '{} {} {}'.format(
-            self.command, ' '.join(self.rets), arguments)
+        run_command = '{} {}'.format(self.command, arguments)
 
         self.logger.info(run_command)
 
@@ -51,12 +49,14 @@ class ShellTask(Task):
         return TaskState.FAIL
 
     def check(self, *args, **kwargs):
-
+        
+        rets = []
         if self.conditions is None or len(self.conditions) == 0:
-            return True, "no condition"
+            return ['']
 
         for condition in self.conditions:
-            if condition.check(*args, **kwargs) == False:
-                return False, condition.hint()
-            self.rets.append(condition.args())
-        return True, None
+            res =  condition.check(*args, **kwargs)
+            if isinstance(res, NoFit):
+                return res
+            rets.append(res)
+        return rets

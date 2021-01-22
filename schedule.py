@@ -1,6 +1,6 @@
 from .timer import TimeWheelManager
 from .timer import CronTimer
-from .task import TaskType, TaskState, TaskEvent
+from .task import TaskType, TaskState, TaskEvent, NoFit
 import threading
 from queue import Queue
 from .utils import default_logger
@@ -41,7 +41,6 @@ class Schedule(TimeWheelManager):
         self.__produce_task(task)
 
     def __produce_task(self, task):
-
         if task not in self.crons:
             return None
         delay_time = self.crons[task].get_next()
@@ -49,6 +48,8 @@ class Schedule(TimeWheelManager):
             self.__done(task)
             return None
         delay_tick = int(delay_time // self.min_interval)
+        if delay_tick < 1:
+            delay_tick = 1
         return self.add_task(delay_tick, task)
 
     def __done(self, task, *args, **kwargs):
@@ -77,12 +78,21 @@ class Schedule(TimeWheelManager):
                 task = self.task_queue.get()
                 status_code = TaskState.WAIT
                 self.__notify_callback(task, TaskEvent.RUN_START)
+                fit = True
                 try:
-                    status_code = task.run()
+                    check_res = task.check()
+                    fit = not isinstance(check_res, NoFit)
+                    if fit:
+                        status_code = task.run(*check_res)
+                    self.logger.info('{} {}'.format(fit,  task.task_name))
                 except Exception as e:
+                    self.logger.error(e)
                     self.__notify_callback(task, TaskEvent.RUN_EXCEPTION, e)
                 finally:
-                    self.__notify_callback(task, TaskEvent.RUN_END)
+                    if fit:
+                        self.__notify_callback(task, TaskEvent.RUN_END)
+                    else:
+                        self.__notify_callback(task, TaskEvent.RUN_NO_FIT)
                     if task.task_type == TaskType.SUCCESS_RET and status_code == TaskState.SUCCESS:
                         self.__done(task)
             except Exception as e:

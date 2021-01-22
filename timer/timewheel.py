@@ -65,11 +65,15 @@ class TimeWheelManager(object):
             self.time_wheels[i].next_time_wheel = self.time_wheels[i + 1]
 
     def add_task(self, delay, task):
+
         task_id = self.task_id
         delay = delay % self.max_tick_times
         time_wheel_no, offset = self.__index(delay)
         slot_no = (self.time_wheels[time_wheel_no].current_pos +
                    offset) % self.time_wheels[time_wheel_no].slot_num
+    
+        self.logger.info('time no {}, current pos {}, task pos {}, task name {}'.format(time_wheel_no, self.time_wheels[time_wheel_no].current_pos, slot_no, task.task_name))
+        #self.logger.info("{} {}".format(delay, self.current_tick_times))
         self.aux_ticker.put(delay + self.current_tick_times)
         task_list = self.__get_task_list(time_wheel_no, slot_no)
         task_list.add_task(delay + self.current_tick_times, task_id, task)
@@ -95,7 +99,7 @@ class TimeWheelManager(object):
             delay = self.aux_ticker.get()
             self.logger.info('delay {}, current tick times {}'.format(
                 delay, self.current_tick_times))
-            print('delay {}, current tick times {}'.format(
+            self.logger.info('delay {}, current tick times {}'.format(
                 delay, self.current_tick_times))
             wait_tick_times = delay - self.current_tick_times
             time.sleep(wait_tick_times * self.min_interval)
@@ -105,7 +109,7 @@ class TimeWheelManager(object):
             time.sleep(self.min_interval)
             self.current_tick_times += 1
             tasks = self.__time_wheel_tick(0, 1)
-
+            self.logger.info(tasks)
         return self.__dispatch(tasks)
 
     def __time_wheel_tick(self, time_wheel_no, num):
