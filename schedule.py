@@ -65,6 +65,7 @@ class Schedule(TimeWheelManager):
         while self.is_tick:
             tasks = self.tick()
             for task in tasks:
+                self.__produce_task(task)
                 self.task_queue.put(task)
 
     def __notify_callback(self, task, event, *args, **kwargs):
@@ -98,5 +99,5 @@ class Schedule(TimeWheelManager):
                         self.__done(task)
             except Exception as e:
                 self.logger.error("execute exception {}".format(e))
-            finally:
-                self.__produce_task(task)
+            # finally:
+            #     self.__produce_task(task)
