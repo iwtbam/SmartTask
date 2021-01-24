@@ -20,11 +20,12 @@ class NVIDIAGPUMemoryLimit(TaskRunCondition):
             self.logger.info(free)
             if free > self.limit:
                 return gpu_id
-        return NoFit(self.hint()) 
+        return NoFit(self.hint())
 
     def get_gpu_info(self):
         with os.popen(self.NVIDIA_CMD, 'r') as rfile:
             lines = rfile.readlines()[1:]
+
             def search_func(line):
                 res = re.findall(r'(\d+)', line)
                 if len(res) == 0 or len(res[0]) < 1:
@@ -32,4 +33,3 @@ class NVIDIAGPUMemoryLimit(TaskRunCondition):
                 return int(res[0])
 
             return list(map(search_func, lines))
-
