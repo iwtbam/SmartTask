@@ -3,9 +3,13 @@ from .task import TaskState
 from .task import TaskDetail
 import subprocess
 import sys
+<<<<<<< HEAD:task/multitasks.py
 from .task import Task, TaskType, TaskState
 from ..utils import default_logger
 from .condition import NoFit
+=======
+from .task import *
+>>>>>>> d3c1e6a... feat : 引入corn表达式定时触发任务:task/shell_task.py
 
 
 @default_logger
